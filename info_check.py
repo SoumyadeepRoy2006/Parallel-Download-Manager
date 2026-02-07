@@ -1,13 +1,13 @@
 import os, requests
 from urllib.parse import urlparse
 
-def extract_filename(url, headers):
+def extract_filename(url:int, headers:dict):
     cd = headers.get("Content-Disposition")
     if cd and "filename=" in cd:
         return cd.split("filename=")[-1].strip("\"'")
     return os.path.basename(urlparse(url).path) or "download.bin"
 
-def get_info(url, timeout=10):
+def get_info(url:str, timeout:int=10):
    result = {
       "url": str(url),
       "filename": None,
