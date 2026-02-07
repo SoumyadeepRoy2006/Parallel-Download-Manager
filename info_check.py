@@ -11,7 +11,7 @@ def get_info(url:str, timeout:int=10):
    result = {
       "url": str(url),
       "filename": None,
-      "size": None,
+      "filesize": None,
       "accept_ranges": bool(False),
       "verified_ranges": bool(False),
       "best_mode": str("STREAM ONLY")
@@ -22,13 +22,13 @@ def get_info(url:str, timeout:int=10):
    headers = head.headers
 
    result["filename"] = str(extract_filename(url, headers))
-   if "Content-Length" in headers: result["size"] = int(headers["Content-Length"])
+   if "Content-Length" in headers: result["filesize"] = int(headers["Content-Length"])
    if headers.get("Accept-Ranges", "").lower() == "bytes": result["accept_ranges"] = True
-   if result["size"] is not None:
+   if result["filesize"] is not None:
       test_headers = {"Range": "bytes=0-0"}
       r = requests.get(url, headers=test_headers, stream=True, timeout=timeout)
       if r.status_code == 206: result["verified_ranges"] = True
-   if result["size"] is not None:
+   if result["filesize"] is not None:
       if result["verified_ranges"]: result["best_mode"] = "PARALLEL"
       else: result["best_mode"] = "SINGLE"
    
