@@ -4,8 +4,7 @@ from partitioner import partition
 from downloader import download
 
 PARTS = 5
-URL = "https://fastly.picsum.photos/id/900/5000/5000.jpg?hmac=5axe9KJd4BcFevLbLG498ymr5pknvOCw-3Htinb-iGc"
-URL2 = "https://mirror.freedif.org/zorin/18/Zorin-OS-18-Core-64-bit-r3.iso" 
+URL = "https://mirror.freedif.org/zorin/18/Zorin-OS-18-Core-64-bit-r3.iso" 
 
 info = get_info(url=URL)
 
@@ -15,4 +14,4 @@ print(filename)
 download_data = partition(filesize, PARTS)
 print(f"{filesize/1024} KB" if filesize < 1024 * 1024 else f"{filesize/1024**2} MB")
 
-download(url=URL, filename=filename, download_data=download_data)
+if info["best_mode"] == "PARALLEL": download(url=URL, filename=filename, download_data=download_data)
