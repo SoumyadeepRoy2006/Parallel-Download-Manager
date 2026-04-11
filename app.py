@@ -1,10 +1,9 @@
-from pprint import pprint
 from info_check import get_info
 from partitioner import partition
 from downloader import download
 
 PARTS = 5
-URL = "https://mirror.freedif.org/zorin/18/Zorin-OS-18-Core-64-bit-r3.iso" 
+URL = str(input("Link ->  ")) 
 
 info = get_info(url=URL)
 
