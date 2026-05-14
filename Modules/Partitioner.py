@@ -11,11 +11,11 @@ def partition_by_parts(filesize:int, primary_parts:int):
       return file_parts
    else:
       print("1 single part")
-      return (0, filesize-1)
+      return [(0, filesize-1)]
    
 def partition_by_size(filesize:int, part_size:int):
    if filesize >= part_size: #100MB
-      if filesize // part_size > 15:
+      if filesize // part_size > 19:
          raise Exception("Too many parts, download will fail")
       
       else:
