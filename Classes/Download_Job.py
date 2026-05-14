@@ -2,13 +2,13 @@ from os import path, rename, remove
 import requests
 from threading import Thread
 from time import sleep
-from tkinter import Label
 from Classes.File_Merger import MergeJob
 
 class DownloadJob:
    file_name = None
    directory = None
    url = None
+   file_size_bytes = None
 
    partition_data = None
    total_parts = 0
@@ -20,9 +20,7 @@ class DownloadJob:
    merge_required = True
    merge_job = None
 
-   binded_label = None
-
-   def __init__(this, url:str, file_name:str, directory:str, partition_data:list, binded_label:Label):
+   def __init__(this, url:str, file_name:str, directory:str, partition_data:list):
       if str(".part") in file_name:
          raise ValueError("'.part' cannot be used in names")
       
@@ -34,9 +32,9 @@ class DownloadJob:
          this.directory = directory
          this.url = url
          this.partition_data = partition_data
+         this.file_size_bytes = partition_data[-1][1]
          this.total_parts = len(partition_data)
          this.merge_job = MergeJob(directory, file_name, len(partition_data))
-         this.binded_label = binded_label
 
 
    def set_dir(this, directory:str):
@@ -50,21 +48,29 @@ class DownloadJob:
 
 
    def _download_part(this, byte_range:tuple, part_no:int=None):
-      part_name = f"{this.file_name}.part{part_no if part_no else ""}"
-      with requests.get(this.url, headers={"Range": f"bytes={byte_range[0]}-{byte_range[1]}"}, stream=True) as res:
-         res.raise_for_status()
-         with open(f"{this.directory}/{part_name}", "wb") as file:
-            for buffer in res.iter_content(chunk_size=this.buffer_rw_size):
-               if buffer:
-                  file.write(buffer)
-                  this.downloaded_bytes += len(buffer)
-                  this.binded_label.config(text=f"Downloaded: {this.downloaded_bytes//1024**2} MB")
-         if part_no:
-            this.merge_job.add_part(part_no, f"{this.directory}/{part_name}")
-         else:
-            rename(f"{this.directory}/{part_name}", f"{this.directory}/{part_name.replace(f".part", "")}")
+      part_name = f"{this.file_name}{(".part" + str(part_no)) if part_no else ""}"
+      if not path.exists(f"{this.directory}/{part_name}"):
+         try:
+            if path.exists(f"{this.directory}/{part_name}.part"):
+               this.downloaded_bytes -= path.getsize(f"{this.directory}/{part_name}.part")
+            with requests.get(this.url, headers={"Range": f"bytes={byte_range[0]}-{byte_range[1]}"}, stream=True) as res:
+               res.raise_for_status()
+               with open(f"{this.directory}/{part_name}.part", "wb") as file:
+                  for buffer in res.iter_content(chunk_size=this.buffer_rw_size):
+                     if buffer:
+                        file.write(buffer)
+                        this.downloaded_bytes += len(buffer)
 
-         this.downloaded_parts += 1
+               rename(f"{this.directory}/{part_name}.part", f"{this.directory}/{part_name}")
+
+               if part_no:
+                  this.merge_job.add_part(part_no, f"{this.directory}/{part_name}")
+
+               this.downloaded_parts += 1
+
+         except Exception as error:
+            print(error)
+
 
 
    def start(this):
