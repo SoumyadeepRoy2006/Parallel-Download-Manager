@@ -118,8 +118,6 @@ class GUIBridge:
    download_job:DownloadJob
 
    file_size_bytes:int
-
-   LABEL_FILE_NAME:Label
    
    LABEL_DOWNLOAD_SIZE:Label
    LABEL_DOWNLOAD_PERCENTAGE:Label
@@ -131,7 +129,6 @@ class GUIBridge:
 
    def __init__(this,
       download_job,
-      file_name:Label,
       download_progress_bar:ProgressBar,
       download_percentage_label:Label,
       download_size_label:Label,
@@ -141,18 +138,12 @@ class GUIBridge:
       this.download_job = download_job
       this.download_job.set_bridge(this)
 
-      this.LABEL_FILE_NAME = file_name
-
       this.PROGRESS_BAR_DOWNLOAD = download_progress_bar
       this.LABEL_DOWNLOAD_SIZE = download_size_label
       this.LABEL_DOWNLOAD_PERCENTAGE = download_percentage_label
       
       this.LABEL_MERGE_STATUS = merge_status
       this.PROGRESS_BAR_MERGE = merge_progress
-
-
-   def set_file_name(this, file_name:str):
-      this.LABEL_FILE_NAME.configure(text=str(file_name))
 
 
    def set_download_size(this, byte_length:int):
